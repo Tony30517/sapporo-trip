@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>札幌・小樽 4日行程</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#18242f;
+    --muted:#61717f;
+    --line:#d7e0e7;
+    --paper:#eaf1f5;
+    --card:#ffffff;
+    --steel:#2f7ba3;     /* 移動 */
+    --gold:#c47d15;      /* 用餐 */
+    --pine:#2f8a6a;      /* 景點 */
+    --plum:#7d5aa6;      /* 購物 */
+    --grey:#8b98a3;      /* 彈性 */
+    --note-bg:#f3f7ef;
+    --note-edge:#8aa96f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:"Noto Sans TC",system-ui,sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    line-height:1.6;
+    font-variant-numeric:tabular-nums;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:0 16px 64px}
+
+  header.top{
+    position:sticky;top:0;z-index:20;
+    background:var(--paper);
+    padding:20px 0 8px;
+    border-bottom:1px solid var(--line);
+  }
+  .kicker{font-size:12px;letter-spacing:.14em;color:var(--steel);font-weight:700}
+  h1{font-size:26px;font-weight:900;letter-spacing:-.01em;margin-top:2px}
+  h1 .sep{color:var(--line);font-weight:400;margin:0 6px}
+
+  nav.tabs{display:flex;gap:6px;margin-top:14px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  nav.tabs button{
+    flex:1 0 auto;min-width:0;
+    border:1px solid var(--line);
+    background:var(--card);
+    color:var(--muted);
+    font-family:inherit;font-size:13px;font-weight:700;
+    padding:8px 6px 9px;border-radius:10px;cursor:pointer;
+    line-height:1.25;text-align:center;transition:.15s;
+  }
+  nav.tabs button .d{display:block;font-size:15px;color:var(--ink)}
+  nav.tabs button .t{display:block;font-size:11px;font-weight:500;color:var(--muted);margin-top:1px}
+  nav.tabs button[aria-selected="true"]{
+    background:var(--ink);border-color:var(--ink);
+  }
+  nav.tabs button[aria-selected="true"] .d,
+  nav.tabs button[aria-selected="true"] .t{color:#fff}
+
+  section.day{display:none;padding-top:22px}
+  section.day.on{display:block}
+
+  .dayhead{margin-bottom:6px}
+  .dayhead .theme{font-size:19px;font-weight:900}
+  .dayhead .meta{font-size:13px;color:var(--muted);margin-top:2px}
+
+  .flag{
+    margin:14px 0 4px;padding:10px 12px;border-radius:10px;
+    background:#fdf3e0;border:1px solid #ecd3a3;color:#8a5a11;
+    font-size:13px;font-weight:500;line-height:1.55;
+  }
+  .flag b{font-weight:700}
+
+  ol.tl{list-style:none;position:relative;margin-top:16px}
+  ol.tl::before{
+    content:"";position:absolute;left:64px;top:6px;bottom:6px;
+    width:2px;background:var(--line);
+  }
+  li.ev{position:relative;padding:0 0 20px 84px;min-height:24px}
+  li.ev .time{
+    position:absolute;left:0;top:0;width:56px;text-align:right;
+    font-size:13px;font-weight:700;color:var(--ink);line-height:1.35;
+  }
+  li.ev .time span{display:block;font-size:11px;font-weight:400;color:var(--muted)}
+  li.ev .dot{
+    position:absolute;left:59px;top:5px;width:12px;height:12px;border-radius:50%;
+    background:#fff;border:2.5px solid var(--grey);
+  }
+  li.ev[data-k="move"]  .dot{border-color:var(--steel)}
+  li.ev[data-k="meal"]  .dot{border-color:var(--gold);background:var(--gold)}
+  li.ev[data-k="see"]   .dot{border-color:var(--pine);background:var(--pine)}
+  li.ev[data-k="shop"]  .dot{border-color:var(--plum);background:var(--plum)}
+  li.ev[data-k="buf"]   .dot{border-color:var(--grey);border-style:dashed}
+
+  .ev .body{font-size:14.5px}
+  .ev .head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .ev .title{font-weight:700}
+  .ev[data-k="move"] .title{font-weight:500;color:#3b4b57}
+  .tag{
+    font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:20px;
+    color:#fff;letter-spacing:.03em;white-space:nowrap;position:relative;top:-1px;
+  }
+  .tag.move{background:var(--steel)}
+  .tag.meal{background:var(--gold)}
+  .tag.see{background:var(--pine)}
+  .tag.shop{background:var(--plum)}
+  .tag.buf{background:var(--grey)}
+  .ev .desc{color:var(--muted);font-size:13px;margin-top:2px}
+  .ev .opts{margin-top:6px;font-size:13px}
+  .ev .opts .o{
+    display:block;padding:5px 10px;margin-top:5px;border-radius:8px;
+    background:#f4f7fa;border-left:3px solid var(--line);color:#3b4b57;
+  }
+  .ev .opts .o b{color:var(--ink)}
+
+  .notes{
+    margin-top:24px;background:var(--note-bg);
+    border:1px solid #d8e4c9;border-radius:14px;padding:16px 18px;
+  }
+  .notes h3{font-size:14px;font-weight:900;color:#4d6b34;margin-bottom:8px;letter-spacing:.02em}
+  .notes ul{list-style:none;font-size:13px;color:#37432c}
+  .notes li{position:relative;padding:5px 0 5px 18px;line-height:1.6;border-top:1px dashed #d0dec0}
+  .notes li:first-child{border-top:0}
+  .notes li::before{content:"";position:absolute;left:3px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--note-edge)}
+  .notes b{font-weight:700;color:#2e3a24}
+  .notes a{color:#2f7ba3;word-break:break-all}
+
+  .legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .legend .move{background:var(--steel)} .legend .meal{background:var(--gold)}
+  .legend .see{background:var(--pine)} .legend .shop{background:var(--plum)}
+  .legend .buf{background:#fff;border:2px dashed var(--grey)}
+
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:36px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">2025.12 · SAPPORO / OTARU</div>
+    <h1>札幌<span class="sep">・</span>小樽 4日行程</h1>
+    <nav class="tabs" id="tabs" role="tablist"></nav>
+  </header>
+  <main id="main"></main>
+  <div class="legend">
+    <span><i class="move"></i>移動</span>
+    <span><i class="meal"></i>用餐</span>
+    <span><i class="see"></i>景點</span>
+    <span><i class="shop"></i>購物</span>
+    <span><i class="buf"></i>彈性</span>
+  </div>
+  <footer>冬天路滑，走路行程時間都抓寬一點 ☃️</footer>
+</div>
+
+<script>
+const DAYS = [
+ {
+  tab:"12/16", dow:"三", theme:"抵達札幌・市區夜景",
+  meta:"樂天中島飯店 · 大通公園燈節 · 電視塔夜景",
+  flag:null,
+  events:[
+   {t:"10:55",e:"14:00",k:"move",title:"機場 → 飯店",desc:"新千歲機場搭 JR 到札幌站 → 地下鐵南北線（真駒內方向）到中島公園站 → 樂天中島飯店"},
+   {t:"14:00",e:"14:30",k:"buf",title:"放行李",desc:"暫定薄野站置物櫃，實際寄放點待查（可用 ecbo cloak 預約）"},
+   {t:"14:30",e:"15:00",k:"move",title:"走到狸小路",desc:"吉山商店 狸小路店"},
+   {t:"15:00",e:"16:10",k:"meal",title:"味噌拉麵",desc:"吉山商店 狸小路店"},
+   {t:"16:10",e:"16:30",k:"move",title:"走到大通公園"},
+   {t:"16:30",e:"18:00",k:"see",title:"逛大通公園",desc:"慕尼黑聖誕市集 + 白色燈樹節"},
+   {t:"18:00",e:"18:20",k:"move",title:"走到札幌電視塔",desc:"大通公園最東端 · 大通西 1 丁目"},
+   {t:"18:20",e:"19:30",k:"see",title:"登塔看夜景",desc:"現場排隊購票，待約 1 小時"},
+   {t:"19:30",e:"19:45",k:"move",title:"走到 GAKARU 湯咖哩附近"},
+   {t:"19:45",e:"20:30",k:"meal",title:"晚餐（三選一）",opts:[
+     "<b>GAKARU 湯咖哩</b>　開到 20:30、易提早賣完",
+     "<b>MASAJIN すすきの本店</b>　成吉思汗羊肉",
+     "<b>SAPPORO 餃子製造所</b> 狸小路店"]},
+   {t:"20:30",e:"21:30",k:"buf",title:"晚餐緩衝",desc:"不管吃什麼，希望 21:30 前解決"},
+   {t:"21:30",e:"22:30",k:"shop",title:"有體力再逛",desc:"藥妝店 或 深夜聖代 Parfaiteria Pal（行李寄放點要夠近）"},
+   {t:"22:30",e:"22:45",k:"move",title:"取行李",desc:"走到薄野站 / 狸小路附近置物櫃"},
+   {t:"22:45",e:"22:55",k:"move",title:"回中島公園站",desc:"走路 或 地下鐵南北線（真駒內方向）"},
+   {t:"22:55",e:"23:15",k:"move",title:"走回飯店",desc:"目標 24:00 前完成 Check in"}
+  ],
+  notes:[
+   "<b>地下鐵末班車</b>：薄野→中島公園 00:12（2 分）｜薄野→札幌 00:14（3 分）｜札幌→中島公園 00:09（5 分）｜中島公園→札幌 末班 00:13、首班 6:13（5 分）。單程皆 210 円。",
+   "<b>GAKARU 湯咖哩</b>：未開店時可用發券機領整理券、掃 QR 加 LINE 追蹤叫號，但過號不候補。",
+   "<b>MASAJIN</b>：官網可提前 1 個月預約，但可能要填日本電話，外國人能否訂待研究。",
+   "<b>地下鐵一日券</b> 830 円，先評估當日搭乘次數再決定要不要買。",
+   "<b>交通卡</b>：北海道買不到西瓜卡，但西瓜卡仍可搭地下鐵全站及部分 JR。當地可買 <b>Kitaca</b>，適用範圍相同（地下鐵全站＋新千歲/札幌/小樽/旭川/岩見澤 JR）。",
+   "行李寄放查詢預約：<a href='https://cloak.ecbo.io/zh-TW'>cloak.ecbo.io/zh-TW</a>"
+  ]
+ },
+ {
+  tab:"12/17", dow:"四", theme:"滑雪 ⛷",
+  meta:"8:30 集合方案 · 螃蟹和牛吃到飽",
+  flag:"<b>6:30 起床、7:30 出門。</b>要吃早餐請自己提早起床，或前一晚準備好。",
+  events:[
+   {t:"7:30",e:"7:40",k:"move",title:"走到中島公園站"},
+   {t:"7:47",e:"7:52",k:"move",title:"地下鐵到薄野站"},
+   {t:"8:00",e:"8:20",k:"move",title:"走到集合地",desc:"THE SUSUKINO SQUARE WEST（實際約 5 分鐘，抓寬到 20 分）"},
+   {t:"8:30",e:"16:50",k:"see",title:"滑雪 好爽 XD",desc:"結束回到 THE SUSUKINO SQUARE WEST"},
+   {t:"16:50",e:"17:00",k:"move",title:"走到薄野站"},
+   {t:"17:07",e:"17:20",k:"move",title:"地下鐵到大通站"},
+   {t:"17:20",e:"17:55",k:"move",title:"走到 耀 KAGAYOI",desc:"南北線大通站出剪票口，走地下連通道進「大通 BISSE」3F"},
+   {t:"18:00",e:"19:40",k:"meal",title:"耀 KAGAYOI",desc:"螃蟹和牛吃到飽 · 100 分鐘 · 15,000 円/人 · 可網路預約"},
+   {t:"19:50",e:"20:10",k:"shop",title:"走回狸小路逛街",desc:"最好今天把藥妝、伴手禮、扭蛋買齊。推薦：KOBUSHIYA 札幌店（伴手禮）、#C-pla 狸小路5丁目店（扭蛋）"},
+   {t:"20:10",e:"22:30",k:"shop",title:"逛到累了回飯店",desc:"回程同第一天路線"}
+  ],
+  notes:[
+   "<b>螃蟹牛肉吃到飽三選一</b>：耀 KAGAYOI（大通）｜蟹座 KANI-ZA｜THE SAKURA BUFFET。後兩者在薄野站附近，從集合地走約 15 分，可能比「耀」更早吃到。三家都可網路預約，再討論。",
+   "<b>啤酒</b>：建議別點喝到飽，喝醉想睡會影響後續行程；酒量不好就少喝，除非單點很貴才選喝到飽。",
+   "（待補：狸小路推薦伴手禮、各種店。）"
+  ]
+ },
+ {
+  tab:"12/18", dow:"五", theme:"神宮・啤酒園・北大・紅磚廳舍",
+  meta:"今天先在地下鐵站買一日券",
+  flag:"<b>移動很多，先在某站自動販賣機買地下鐵一日券（830 円）。</b>",
+  events:[
+   {t:"8:00",e:"9:00",k:"buf",title:"出發 · 便利商店早餐",desc:"不吃早餐可 9:00 再出門，或前一晚備好"},
+   {t:"9:00",e:"9:17",k:"move",title:"走到中島公園站上車"},
+   {t:"9:17",e:"9:23",k:"move",title:"南北線到大通站"},
+   {t:"9:23",e:"9:30",k:"move",title:"大通站 南北線 → 東西線",desc:"走路轉乘"},
+   {t:"9:32",e:"9:40",k:"move",title:"東西線到円山公園站",desc:"宮之澤方向"},
+   {t:"9:40",e:"10:00",k:"move",title:"走到北海道神宮"},
+   {t:"10:00",e:"10:40",k:"see",title:"北海道神宮",desc:"參拜、買御守、拍照、買酒"},
+   {t:"10:40",e:"11:00",k:"move",title:"走回円山公園站"},
+   {t:"11:09",e:"11:15",k:"move",title:"東西線回大通站",desc:"新札幌方向"},
+   {t:"11:15",e:"11:20",k:"move",title:"大通站 東西線 → 東豐線"},
+   {t:"11:24",e:"11:30",k:"move",title:"東豐線到東區役所前站",desc:"榮町方向"},
+   {t:"11:30",e:"11:45",k:"move",title:"走到札幌啤酒園"},
+   {t:"11:50",e:"13:20",k:"meal",title:"札幌啤酒園",desc:"成吉思汗烤肉吃到飽 + 啤酒暢飲 90 分。先網路預約「開拓史館」，重點在烤肉別喝醉，也可單點"},
+   {t:"13:30",e:"14:10",k:"see",title:"參觀啤酒博物館 / 拍照"},
+   {t:"14:10",e:"14:25",k:"move",title:"走回東區役所前站"},
+   {t:"14:35",e:"14:45",k:"move",title:"回大通站",desc:"福住方向"},
+   {t:"14:45",e:"14:50",k:"move",title:"大通站 東豐線 → 南北線"},
+   {t:"14:53",e:"15:00",k:"move",title:"南北線到北12條站"},
+   {t:"15:00",e:"15:10",k:"move",title:"走到北海道大學側門"},
+   {t:"15:15",e:"15:30",k:"see",title:"日落前先拍照"},
+   {t:"15:35",e:"16:25",k:"see",title:"綜合博物館",desc:"17:00 關閉"},
+   {t:"16:35",e:"17:00",k:"shop",title:"エルムの森 紀念品店",desc:"正門旁 · 17:00 關"},
+   {t:"17:00",e:"17:20",k:"see",title:"校園雪景照",desc:"視情況"},
+   {t:"17:20",e:"17:50",k:"move",title:"走到紅磚廳舍",desc:"北海道廳舊本廳舍（網路說約 15 分，抓寬）"},
+   {t:"17:50",e:"18:50",k:"see",title:"紅磚廳舍",desc:"買票（可網路先買）看內部展物、拍照、買紀念品"},
+   {t:"18:50",e:"19:00",k:"buf",title:"選晚餐 / 逛街地點",opts:[
+     "<b>①</b> 紅磚露臺 B1 地下街：Tiger Curry 湯咖哩 / 松尾成吉思汗(可線上預約) / CAFE YOSHIMI 蛋包飯 / 椿沙龍 鬆餅",
+     "<b>②</b> 19:20 從地下街走 15 分回狸小路",
+     "<b>③</b> 走 Chi-Ka-Ho 地下步行空間約 10 分到札幌站周邊百貨/地下街",
+     "<b>④</b> 去薄野商圈"]},
+   {t:"19:00",e:"19:20",k:"move",title:"前往目的地"},
+   {t:"19:20",e:"22:30",k:"meal",title:"晚餐 + 逛街",desc:"到 22:30 累了就回飯店"}
+  ],
+  notes:[
+   "順序彈性：離開北大後也可先逛街吃晚餐再去紅磚廳舍（營業到 21:00）。",
+   "商店多到 20:00 就休息，餐廳較晚，可先逛再吃。",
+   "舊本廳舍是北海道歷史人文展，沒興趣可只在外拍照買紀念品，或改到第 5 天下午。",
+   "<b>若第一晚已吃到成吉思汗</b>：18 號可不去啤酒博物館，改去白色戀人公園（原排第 5 天早上），北海道神宮則改到第 5 天早上。",
+   "走路行程都抓寬時間：冬天路滑、常沒地下街、又人生地不熟。"
+  ]
+ },
+ {
+  tab:"12/19", dow:"六", theme:"小樽",
+  meta:"堺町通商店街 · 運河 · 遊覽船",
+  flag:"要跨城市、距離較遠，希望早點出發。要吃早餐請提早起床或前一晚備好。",
+  events:[
+   {t:"8:15",e:"8:30",k:"move",title:"走到中島公園站"},
+   {t:"8:36",e:"8:42",k:"move",title:"南北線到地下鐵札幌站",desc:"麻生方向"},
+   {t:"8:42",e:"8:50",k:"move",title:"走地下連通道到 JR 札幌站"},
+   {t:"9:16",e:"10:00",k:"move",title:"JR 到 南小樽站"},
+   {t:"10:10",e:"10:20",k:"move",title:"走到堺町通商店街",desc:"小樽音樂盒堂 本館"},
+   {t:"10:20",e:"10:50",k:"see",title:"小樽音樂盒堂 本館",desc:"10:30 或 10:45 一定要出正門看蒸汽鐘"},
+   {t:"11:00",e:"11:30",k:"see",title:"北一硝子三號館",desc:"玻璃工藝 · 三號館露臺區吃 8 段彩虹冰淇淋"},
+   {t:"11:30",e:"13:00",k:"meal",title:"午餐",desc:"小樽竹野壽司海鮮丼 / Otaru Ezoya / 附近多間海鮮丼、拉麵"},
+   {t:"13:00",e:"16:00",k:"shop",title:"邊逛邊往北到運河",desc:"六花亭、本菓樓、LeTAO 本店 · 米飛兔點心堂、SNOOPY Village。目標 16:00 抵運河"},
+   {t:"16:00",e:"17:00",k:"see",title:"運河附近逛、拍照"},
+   {t:"17:00",e:"18:30",k:"meal",title:"晚餐",desc:"小樽 BINE（洋食,可預約）/ 若雞時代なると本店 / 天婦羅脇坂 小樽出拔小路店"},
+   {t:"18:30",e:"19:00",k:"move",title:"走到登船口",desc:"19:00 就排隊，最晚 19:15 一定要排。遊覽船 10/20 可官網線上預約"},
+   {t:"19:30",e:"20:20",k:"see",title:"運河遊覽船",desc:"19:30 出發、20:10 結束、20:20 全員下船"},
+   {t:"20:20",e:"20:40",k:"move",title:"走回 JR 小樽站"},
+   {t:"20:57",e:"21:44",k:"move",title:"JR 回札幌站"},
+   {t:"21:44",e:"22:00",k:"move",title:"走到南北線地下鐵札幌站",desc:"時間抓寬"},
+   {t:"22:11",e:"22:16",k:"move",title:"南北線回中島公園站",desc:"真駒內方向"},
+   {t:"22:20",e:"22:40",k:"move",title:"走回飯店",desc:"冬天路難走，抓寬"}
+  ],
+  notes:[
+   "<b>六花亭</b> 葡萄奶油夾心餅乾建議這天再買，保存期限只有約 10～14 天。",
+   "<b>LeTAO</b> 起司蛋糕需冷凍，想帶回台灣建議回程時在機場出境免稅店再買。"
+  ]
+ }
+];
+
+const TAGLABEL={move:"移動",meal:"用餐",see:"景點",shop:"購物",buf:"彈性"};
+
+function render(){
+ const tabs=document.getElementById('tabs');
+ const main=document.getElementById('main');
+ DAYS.forEach((d,i)=>{
+  const b=document.createElement('button');
+  b.role="tab"; b.setAttribute('aria-selected', i===0);
+  b.innerHTML=`<span class="d">${d.tab}</span><span class="t">(${d.dow})</span>`;
+  b.onclick=()=>select(i);
+  tabs.appendChild(b);
+
+  const s=document.createElement('section');
+  s.className='day'+(i===0?' on':'');
+  let evs=d.events.map(ev=>{
+   const opts=ev.opts?`<div class="opts">${ev.opts.map(o=>`<span class="o">${o}</span>`).join('')}</div>`:'';
+   const desc=ev.desc?`<div class="desc">${ev.desc}</div>`:'';
+   const end=ev.e?`<span>${ev.e}</span>`:'';
+   return `<li class="ev" data-k="${ev.k}">
+     <div class="time">${ev.t}${end}</div>
+     <div class="dot"></div>
+     <div class="body"><div class="head"><span class="title">${ev.title}</span><span class="tag ${ev.k}">${TAGLABEL[ev.k]}</span></div>${desc}${opts}</div>
+   </li>`;
+  }).join('');
+  const flag=d.flag?`<div class="flag">${d.flag}</div>`:'';
+  const notes=`<div class="notes"><h3>注意事項</h3><ul>${d.notes.map(n=>`<li>${n}</li>`).join('')}</ul></div>`;
+  s.innerHTML=`<div class="dayhead"><div class="theme">${d.theme}</div><div class="meta">${d.meta}</div></div>${flag}<ol class="tl">${evs}</ol>${notes}`;
+  main.appendChild(s);
+ });
+}
+function select(i){
+ document.querySelectorAll('#tabs button').forEach((b,j)=>b.setAttribute('aria-selected',j===i));
+ document.querySelectorAll('.day').forEach((s,j)=>s.classList.toggle('on',j===i));
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>
